@@ -26,34 +26,37 @@ coords = {
 
 # Criar dados de exemplo para a matriz de distâncias
 # Vamos usar valores específicos para testar o cálculo
-indices = [f'E{i+1}' for i in range(36)]
-df_dist = pd.DataFrame(np.ones((36, 36)), index=indices, columns=indices)
+# --- 1. Definições e Inicializações ---
+estados = [
+    [0, 1, 2, 3],
+    [4, 5, 6, 7, 8, 9, 10, 11],
+    [12, 13, 14, 15, 16, 17, 18, 19],
+    [20, 21, 22, 23, 24, 25, 26, 27],
+    [28, 29, 30, 31, 32, 33, 34, 35]
+]
 
-# Definir valores específicos para o teste
-df_dist.loc['E15', 'E7'] = 0.5  # Custo de E15 para E7
-df_dist.loc['E15', 'E6'] = 0.5  # Custo de E15 para E6
-df_dist.loc['E15', 'E14'] = 0.5  # Custo de E15 para E14
-df_dist.loc['E15', 'E22'] = 0.5  # Custo de E15 para E22
-df_dist.loc['E15', 'E23'] = 0.5  # Custo de E15 para E23
+coords = {
+    0: (2, 0), 1: (3, 0), 2: (4, 0), 3: (5, 0),
+    4: (0, 1), 5: (1, 1), 6: (2, 1), 7: (3, 1), 8: (4, 1), 9: (5, 1), 10: (6, 1), 11: (7, 1),
+    12: (0, 2), 13: (1, 2), 14: (2, 2), 15: (3, 2), 16: (4, 2), 17: (5, 2), 18: (6, 2), 19: (7, 2),
+    20: (0, 3), 21: (1, 3), 22: (2, 3), 23: (3, 3), 24: (4, 3), 25: (5, 3), 26: (6, 3), 27: (7, 3),
+    28: (0, 4), 29: (1, 4), 30: (2, 4), 31: (3, 4), 32: (4, 4), 33: (5, 4), 34: (6, 4), 35: (7, 4),
+}
 
-df_dist.loc['E7', 'E1'] = 0.5  # Custo de E7 para E1
-df_dist.loc['E7', 'E6'] = 0.5  # Custo de E7 para E6
-df_dist.loc['E7', 'E14'] = 0.5  # Custo de E7 para E14
-
-# Valores de distância para o objetivo (E9)
-df_dist.loc['E7', 'E9'] = 1.2  # Distância de E7 para E9
-df_dist.loc['E6', 'E9'] = 1.8  # Distância de E6 para E9
-df_dist.loc['E14', 'E9'] = 1.87  # Distância de E14 para E9
-df_dist.loc['E22', 'E9'] = 2.06  # Distância de E22 para E9
-df_dist.loc['E23', 'E9'] = 1.56  # Distância de E23 para E9
-df_dist.loc['E1', 'E9'] = 1.3  # Distância de E1 para E9
-df_dist.loc['E15', 'E9'] = 0.697  # Distância de E15 para E9
-
-# Garantir que a matriz seja simétrica
-for i in range(36):
-    for j in range(36):
-        if i != j:
-            df_dist.iloc[i, j] = df_dist.iloc[j, i]
+# Carregar a matriz de distâncias do Excel
+try:
+    df_dist = pd.read_excel('distancias.xlsx', index_col=0)
+except:
+    print("Erro ao carregar o arquivo de distâncias. Usando valores padrão.")
+    # Criar matriz de distâncias padrão (euclidiana)
+    indices = [f'E{i+1}' for i in range(36)]
+    df_dist = pd.DataFrame(np.ones((36, 36)), index=indices, columns=indices)
+    for i in range(36):
+        for j in range(36):
+            if i != j:
+                x1, y1 = coords[i]
+                x2, y2 = coords[j]
+                df_dist.iloc[i, j] = np.sqrt((x1-x2)**2 + (y1-y2)**2)
 
 def distancia(estado1, estado2):
     return df_dist.loc[f'E{estado1+1}', f'E{estado2+1}']
